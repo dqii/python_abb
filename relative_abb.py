@@ -3,10 +3,10 @@ import numpy as np
 from scipy.spatial.transform import Rotation as scipy_rotation
 
 def quat_to_euler(q):
-	return list(np.around(scipy_rotation.from_quat(q).as_euler('xyz', degrees=True), 3))
+	return list(np.around(scipy_rotation.from_quat(q).as_euler('zyx', degrees=True), 3))
 
 def euler_to_quat(e):
-	return list(np.around(scipy_rotation.from_euler('xyz', e, degrees=True).as_quat(), 3))
+	return list(np.around(scipy_rotation.from_euler('zyx', e, degrees=True).as_quat(), 3))
 
 class RelativeRobot(Robot):
 	def __init__(self, 
@@ -24,7 +24,7 @@ class RelativeRobot(Robot):
 
 		# calculate quaternion
 		r = scipy_rotation.from_quat(old_pose[1])
-		dr = scipy_rotation.from_euler('xyz', [drx, dry, drz], degrees=True)
+		dr = scipy_rotation.from_euler('zyx', [drx, dry, drz], degrees=True)
 		q = list((r * dr).as_quat())
 
 		pose = [c, q]
