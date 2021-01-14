@@ -343,7 +343,7 @@ def check_coordinates(coordinates):
     elif (len(coordinates) == 7):
         return [coordinates[0:3], coordinates[3:7]]
     log.warn('Recieved malformed coordinate: %s', str(coordinates))
-    raise NameError('Malformed coordinate!')
+    raise NameError('Malformed coordinate! %s', str(coordinates))
 
 if __name__ == '__main__':
     formatter = logging.Formatter("[%(asctime)s] %(levelname)-7s (%(filename)s:%(lineno)3s) %(message)s", "%Y-%m-%d %H:%M:%S")

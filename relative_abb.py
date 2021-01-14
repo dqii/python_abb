@@ -1,6 +1,7 @@
 from .abb import Robot
 import numpy as np
 from scipy.spatial.transform import Rotation
+import time
 
 def quat_to_euler(q):
 	return list(np.around(Rotation.from_quat(q).as_euler('zyx', degrees=True), 3))
@@ -18,10 +19,15 @@ class RelativeRobot(Robot):
 	def wait(self, desired_position):
 		c_goal = np.array(desired_position[0])
 		q_goal = np.array(desired_position[1])
+		t = time.time()
 		while True:
 			[c, q] = self.get_cartesian()
 			if np.linalg.norm(np.array(c) - c_goal) < 0.02 and np.linalg.norm(np.array(q) - q_goal) < 0.02:
 				break
+			elif time.time() - t > 10:
+				print("Goal", c_goal, q_goal)
+				print("Current", c, q)
+				print("")
 
 	def set_pose(self, pose, wait):
 		self.set_cartesian(pose)
