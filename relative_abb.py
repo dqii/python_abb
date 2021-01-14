@@ -15,6 +15,19 @@ class RelativeRobot(Robot):
 				 port_logger = 5001):
 		super().__init__(ip, port_motion, port_logger)
 
+	def wait(self, desired_position):
+		c_goal = np.array(desired_position[0])
+		q_goal = np.array(desired_position[1])
+		while True:
+			[c, q] = self.get_cartesian()
+			if np.linalg.norm(np.array(c) - c_goal) < 0.02 and np.linalg.norm(np.array(q) - q_goal) < 0.02:
+				break
+
+	def set_pose(self, pose, wait):
+		self.set_cartesian(pose)
+		if wait:
+			self.wait(pose)
+
 	def relative_move(self, dx=0, dy=0, dz=0, drx=0, dry=0, drz=0, wait=False):
 		old_pose = self.get_cartesian()
 
@@ -28,26 +41,15 @@ class RelativeRobot(Robot):
 		q = list((r * dr).as_quat())
 
 		pose = [c, q]
-		self.set_cartesian(pose)
+		self.set_pose(pose, wait)
 
-		if wait:
-			self.wait(pose)
+	def point_up(self, wait=False):
+		c = self.get_cartesian()[0]
+		self.set_pose([c, [1,0,0,0]], wait)
 
-	def wait(self, desired_position):
-		c_goal = np.array(desired_position[0])
-		q_goal = np.array(desired_position[1])
-		while True:
-			[c, q] = self.get_cartesian()
-			if np.linalg.norm(np.array(c) - c_goal) < 0.02 and np.linalg.norm(np.array(q) - q_goal) < 0.02:
-				break
-
-	def point_up(self):
+	def point_down(self, wait=False):
 		c = self.get_cartesian()[0]		
-		self.set_cartesian([c, [1,0,0,0]]) 
-
-	def point_down(self):
-		c = self.get_cartesian()[0]		
-		self.set_cartesian([c, [0,0,1,0]])
+		self.set_pose([c, [0,0,1,0]], wait)
 
 	@property
 	def x(self):
