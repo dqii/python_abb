@@ -9,6 +9,12 @@ def quat_to_euler(q):
 def euler_to_quat(e):
 	return list(np.around(Rotation.from_euler('zyx', e, degrees=True).as_quat(), 3))
 
+def euclidean_distance(p1, p2):
+	return np.linalg.norm(np.array(p1) - np.array(p2))
+
+def close_enough(p1, p2, error):
+	return euclidean_distance(p1[0], p2[0]) < error and euclidean_distance(p1[1], p2[1]) < error
+
 class RelativeRobot(Robot):
 	def __init__(self, 
 				 ip          = '192.168.125.1', 
@@ -16,18 +22,20 @@ class RelativeRobot(Robot):
 				 port_logger = 5001):
 		super().__init__(ip, port_motion, port_logger)
 
-	def wait(self, desired_position):
-		c_goal = np.array(desired_position[0])
-		q_goal = np.array(desired_position[1])
+	def wait(self, goal):
+		last = self.get_cartesian()
 		t = time.time()
 		while True:
-			[c, q] = self.get_cartesian()
-			if np.linalg.norm(np.array(c) - c_goal) < 0.02 and np.linalg.norm(np.array(q) - q_goal) < 0.02:
+			current = self.get_cartesian()
+			if close_enough(current, goal, 0.03):
 				break
-			elif time.time() - t > 10:
+			elif time.time() - t > 5:
+				if close_enough(current, goal, 0.06) and close_enough(current, last, 0.01):
+					break
 				print("Goal", c_goal, q_goal)
 				print("Current", c, q)
 				print("")
+			last = current
 
 	def get_euler(self):
 		return quat_to_euler(self.get_cartesian()[1])
