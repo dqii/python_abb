@@ -1,4 +1,4 @@
-from abb import Robot
+from .abb import Robot
 import numpy as np
 from scipy.spatial.transform import Rotation as scipy_rotation
 
