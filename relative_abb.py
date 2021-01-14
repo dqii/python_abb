@@ -1,12 +1,12 @@
 from .abb import Robot
 import numpy as np
-from scipy.spatial.transform import Rotation as scipy_rotation
+from scipy.spatial.transform import Rotation
 
 def quat_to_euler(q):
-	return list(np.around(scipy_rotation.from_quat(q).as_euler('zyx', degrees=True), 3))
+	return list(np.around(Rotation.from_quat(q).as_euler('zyx', degrees=True), 3))
 
 def euler_to_quat(e):
-	return list(np.around(scipy_rotation.from_euler('zyx', e, degrees=True).as_quat(), 3))
+	return list(np.around(Rotation.from_euler('zyx', e, degrees=True).as_quat(), 3))
 
 class RelativeRobot(Robot):
 	def __init__(self, 
@@ -15,7 +15,7 @@ class RelativeRobot(Robot):
 				 port_logger = 5001):
 		super().__init__(ip, port_motion, port_logger)
 
-	def relative_move(self, dx=0, dy=0, dz=0, drx=0, dry=0, drz=0):
+	def relative_move(self, dx=0, dy=0, dz=0, drx=0, dry=0, drz=0, wait=False):
 		old_pose = self.get_cartesian()
 
 		# calculate cartesian
@@ -23,12 +23,23 @@ class RelativeRobot(Robot):
 		c = [x + dx, y + dy, z + dz]
 
 		# calculate quaternion
-		r = scipy_rotation.from_quat(old_pose[1])
-		dr = scipy_rotation.from_euler('zyx', [drx, dry, drz], degrees=True)
+		r = Rotation.from_quat(old_pose[1])
+		dr = Rotation.from_euler('zyx', [drx, dry, drz], degrees=True)
 		q = list((r * dr).as_quat())
 
 		pose = [c, q]
 		self.set_cartesian(pose)
+
+		if wait:
+			self.wait(pose)
+
+	def wait(self, desired_position):
+		c_goal = np.array(desired_position[0])
+		q_goal = np.array(desired_position[1])
+		while True:
+			[c, q] = self.get_cartesian()
+			if np.linalg.norm(np.array(c) - c_goal) < 0.02 and np.linalg.norm(np.array(q) - q_goal) < 0.02:
+				break
 
 	def point_up(self):
 		c = self.get_cartesian()[0]		
