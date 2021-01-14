@@ -29,33 +29,56 @@ class RelativeRobot(Robot):
 				print("Current", c, q)
 				print("")
 
+	def get_euler(self):
+		return quat_to_euler(self.get_cartesian()[1])
+
 	def set_pose(self, pose, wait):
 		self.set_cartesian(pose)
 		if wait:
 			self.wait(pose)
 
-	def relative_move(self, dx=0, dy=0, dz=0, drx=0, dry=0, drz=0, wait=False):
+	def validate_inputs(self, x, y, z, rx, ry, rz, dx, dy, dz, drx, dry, drz):
+		return (
+			(x is None      or dx == 0)
+			and (y is None  or dy == 0)
+			and (z is None  or dz == 0)
+			and (rx is None or drx == 0)
+			and (ry is None or dry == 0)
+			and (rz is None or drz == 0)
+		)
+
+	def move(self, x=None, y=None, z=None, rx=None, ry=None, rz=None, dx=0, dy=0, dz=0, drx=0, dry=0, drz=0, wait=False):
+		if not self.validate_inputs(x, y, z, rx, ry, rz, dx, dy, dz, drx, dry, drz):
+			return
+
 		old_pose = self.get_cartesian()
 
 		# calculate cartesian
-		(x, y, z) = old_pose[0]
-		c = [x + dx, y + dy, z + dz]
+		(old_x, old_y, old_z) = old_pose[0]
+		new_x = x if x is not None else old_x + dx
+		new_y = y if y is not None else old_y + dy
+		new_z = z if z is not None else old_z + dz
+		c = [new_x, new_y, new_z]
 
 		# calculate quaternion
 		r = Rotation.from_quat(old_pose[1])
+		if rx is not None or ry is not None or rz is not None:
+			(old_rx, old_ry, old_rz) = r.as_euler('zyx', degrees=True)
+			new_rx = rx if rx is not None else old_rx
+			new_ry = ry if ry is not None else old_ry
+			new_rz = rz if rz is not None else old_rz
+			r = Rotation.from_euler('zyx', [new_rx, new_ry, new_rz], degrees=True)
 		dr = Rotation.from_euler('zyx', [drx, dry, drz], degrees=True)
 		q = list((r * dr).as_quat())
 
 		pose = [c, q]
 		self.set_pose(pose, wait)
 
-	def point_up(self, wait=False):
-		c = self.get_cartesian()[0]
-		self.set_pose([c, [1,0,0,0]], wait)
-
 	def point_down(self, wait=False):
-		c = self.get_cartesian()[0]		
-		self.set_pose([c, [0,0,1,0]], wait)
+		self.move(rx=-180, ry=0, rz=0)
+
+	def point_up(self, wait=False):
+		self.move(rx=0, ry=0, rz=0)
 
 	@property
 	def x(self):
