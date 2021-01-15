@@ -30,10 +30,10 @@ class RelativeRobot(Robot):
 			if close_enough(current, goal, 0.03):
 				break
 			elif time.time() - t > 5:
-				if close_enough(current, goal, 0.06) and close_enough(current, last, 0.01):
+				if close_enough(current, goal, 0.1) and close_enough(current, last, 0.01):
 					break
-				print("Goal", c_goal, q_goal)
-				print("Current", c, q)
+				print("Goal", goal)
+				print("Current", current)
 				print("")
 			last = current
 
