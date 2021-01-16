@@ -14,6 +14,8 @@ class WSG:
         atexit.register(self.__del__)
         # Acknowledge fast stop from failure if any
         self.ack_fast_stop()
+        self.home()
+        print("Connected to WSG gripper")
 
     def wait_for_msg(self, msg):
         since = time()
