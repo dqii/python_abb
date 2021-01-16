@@ -21,6 +21,7 @@ class RelativeRobot(Robot):
 				 port_motion = 5000,
 				 port_logger = 5001):
 		super().__init__(ip, port_motion, port_logger)
+		print("Connected to ABB robot")
 
 	def wait(self, goal):
 		last = self.get_cartesian()
@@ -83,7 +84,7 @@ class RelativeRobot(Robot):
 		self.set_pose(pose, wait)
 
 	def point_down(self, wait=False):
-		self.move(rx=-180, ry=0, rz=0)
+		self.move(rx=180, ry=0, rz=0)
 
 	def point_up(self, wait=False):
 		self.move(rx=0, ry=0, rz=0)
