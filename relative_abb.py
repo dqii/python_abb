@@ -13,7 +13,8 @@ def euclidean_distance(p1, p2):
 	return np.linalg.norm(np.array(p1) - np.array(p2))
 
 def close_enough(p1, p2, error):
-	return euclidean_distance(p1[0], p2[0]) < error and euclidean_distance(p1[1], p2[1]) < error
+	xyz_error = euclidean_distance(p1[0], p2[0])
+	return xyz_error < error
 
 class RelativeRobot(Robot):
 	def __init__(self, 
@@ -56,7 +57,7 @@ class RelativeRobot(Robot):
 			and (rz is None or drz == 0)
 		)
 
-	def move(self, x=None, y=None, z=None, rx=None, ry=None, rz=None, dx=0, dy=0, dz=0, drx=0, dry=0, drz=0, wait=False):
+	def move(self, x=None, y=None, z=None, rx=None, ry=None, rz=None, dx=0, dy=0, dz=0, drx=0, dry=0, drz=0, wait=True):
 		if not self.validate_inputs(x, y, z, rx, ry, rz, dx, dy, dz, drx, dry, drz):
 			return
 
@@ -83,10 +84,10 @@ class RelativeRobot(Robot):
 		pose = [c, q]
 		self.set_pose(pose, wait)
 
-	def point_down(self, wait=False):
+	def point_down(self, wait=True):
 		self.move(rx=180, ry=0, rz=0)
 
-	def point_up(self, wait=False):
+	def point_up(self, wait=True):
 		self.move(rx=0, ry=0, rz=0)
 
 	@property
