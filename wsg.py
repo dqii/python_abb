@@ -3,6 +3,20 @@ from time import time, sleep
 from enum import Enum
 import atexit
 
+class FakeWSG:
+    def __init__(self):
+        pass
+    def home(self):
+        pass
+    def move(self, position):
+        pass
+    def grip(self, force):
+        pass
+    def release(self):
+        pass
+    def bye(self):
+        pass
+
 class WSG:
     def __init__(self, TCP_IP = "192.168.1.20", TCP_PORT = 1000):
         self.TCP_IP = TCP_IP
