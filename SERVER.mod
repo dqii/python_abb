@@ -339,6 +339,30 @@ PROC main()
                     ok:=SERVER_BAD_MSG;
                 ENDIF
 
+            CASE 11: !Wrist singularity
+                IF nParams = 0 THEN
+                    SingArea \Wrist;
+                    ok := SERVER_OK;
+                ELSE
+                    ok := SERVER_BAD_MSG;
+                ENDIF
+
+            CASE 12: !Lock axis 4
+                IF nParams = 0 THEN
+                    SingArea \LockAxis4;
+                    ok := SERVER_OK;
+                ELSE
+                    ok := SERVER_BAD_MSG;
+                ENDIF
+
+            CASE 13: !Singularity off
+                IF nParams = 0 THEN
+                    SingArea \Off;
+                    ok := SERVER_OK;
+                ELSE
+                    ok := SERVER_BAD_MSG;
+                ENDIF
+
             CASE 30: !Add Cartesian Coordinates to buffer
                 IF nParams = 7 THEN
                     cartesianTarget :=[[params{1},params{2},params{3}],

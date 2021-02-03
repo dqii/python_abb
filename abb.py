@@ -228,6 +228,18 @@ class Robot:
         msg += format(zone[2], "+08.4f") + " #" 
         self.send(msg)
 
+    def singularity_wrist(self):
+        msg = "11 #"
+        self.send(msg)
+
+    def singularity_lock4(self):
+        msg = "12 #"
+        self.send(msg)
+
+    def singularity_off(self):
+        msg = "13 #"
+        self.send(msg)
+
     def buffer_add(self, pose):
         '''
         Appends single pose to the remote buffer
