@@ -71,12 +71,20 @@ class Robot:
         self.scale_linear = units_l[linear]
         self.scale_angle  = units_a[angular]
 
-    def set_cartesian(self, pose):
+    def movel(self, pose):
         '''
-        Executes a move immediately from the current pose,
+        Executes a move (linear-space) immediately from the current pose,
         to 'pose', with units of millimeters.
         '''
         msg  = "01 " + self.format_pose(pose)   
+        return self.send(msg)
+
+    def movej(self, pose):
+        '''
+        Executes a move (joint-space) immediately from the current pose,
+        to 'pose', with units of millimeters.
+        '''
+        msg  = "02 " + self.format_pose(pose)
         return self.send(msg)
 
     def set_joints(self, joints):
@@ -85,7 +93,7 @@ class Robot:
         to 'joints', in degrees. 
         '''
         if len(joints) != 6: return False
-        msg = "02 "
+        msg = "03 "
         for joint in joints: msg += format(joint*self.scale_angle, "+08.2f") + " " 
         msg += "#" 
         return self.send(msg)
@@ -94,7 +102,7 @@ class Robot:
         '''
         Returns the current pose of the robot, in millimeters
         '''
-        msg = "03 #"
+        msg = "04 #"
         data = self.send(msg).split()
         r = [float(s) for s in data]
         return [r[2:5], r[5:9]]
@@ -103,7 +111,7 @@ class Robot:
         '''
         Returns the current angles of the robots joints, in degrees. 
         '''
-        msg = "04 #"
+        msg = "05 #"
         data = self.send(msg).split()
         return [float(s) / self.scale_angle for s in data[2:8]]
 
@@ -112,7 +120,7 @@ class Robot:
         If you have an external axis connected to your robot controller
         (such as a FlexLifter 600, google it), this returns the joint angles
         '''
-        msg = "05 #"
+        msg = "06 #"
         data = self.send(msg).split()
         return [float(s) for s in data[2:8]]
        
@@ -137,7 +145,7 @@ class Robot:
         Offsets are from tool0, which is defined at the intersection of the
         tool flange center axis and the flange face.
         '''
-        msg       = "06 " + self.format_pose(tool)    
+        msg       = "07 " + self.format_pose(tool)
         self.send(msg)
         self.tool = tool
 
@@ -156,7 +164,7 @@ class Robot:
         The workobject is a local coordinate frame you can define on the robot,
         then subsequent cartesian moves will be in this coordinate frame. 
         '''
-        msg = "07 " + self.format_pose(work_obj)   
+        msg = "08 " + self.format_pose(work_obj)
         self.send(msg)
 
     def set_speed(self, speed=[50,50,50,50]):
@@ -166,7 +174,7 @@ class Robot:
         '''
 
         if len(speed) != 4: return False
-        msg = "08 " 
+        msg = "09 "
         msg += format(speed[0], "+08.1f") + " " 
         msg += format(speed[1], "+08.2f") + " "  
         msg += format(speed[2], "+08.1f") + " " 
@@ -213,7 +221,7 @@ class Robot:
             zone = zone_dict[zone_key]
         else: return False
         
-        msg = "09 " 
+        msg = "10 "
         msg += str(int(point_motion)) + " "
         msg += format(zone[0], "+08.4f") + " " 
         msg += format(zone[1], "+08.4f") + " " 

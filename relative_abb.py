@@ -43,7 +43,7 @@ class RelativeRobot(Robot):
 		return quat_to_euler(self.get_cartesian()[1])
 
 	def set_pose(self, pose, wait):
-		self.set_cartesian(pose)
+		self.movej(pose)
 		if wait:
 			self.wait(pose)
 
@@ -57,7 +57,7 @@ class RelativeRobot(Robot):
 			and (rz is None or drz == 0)
 		)
 
-	def move(self, x=None, y=None, z=None, rx=None, ry=None, rz=None, dx=0, dy=0, dz=0, drx=0, dry=0, drz=0, wait=True):
+	def move(self, x=None, y=None, z=None, rx=None, ry=None, rz=None, dx=0, dy=0, dz=0, drx=0, dry=0, drz=0, wait=True, linear=False):
 		if not self.validate_inputs(x, y, z, rx, ry, rz, dx, dy, dz, drx, dry, drz):
 			return
 
@@ -81,8 +81,14 @@ class RelativeRobot(Robot):
 		dr = Rotation.from_euler('zyx', [drx, dry, drz], degrees=True)
 		q = list((r * dr).as_quat())
 
+		# move to pose
 		pose = [c, q]
-		self.set_pose(pose, wait)
+		if linear:
+			self.movel(pose)
+		else:
+			self.movej(pose)
+		if wait:
+			self.wait(pose)
 
 	def point_down(self, wait=True):
 		self.move(rx=180, ry=0, rz=0)
@@ -121,37 +127,37 @@ class RelativeRobot(Robot):
 	def x(self, val):
 		(_, y, z), q = self.get_cartesian()
 		pose = [[val, y, z], q]
-		self.set_cartesian(pose)
+		self.movej(pose)
 
 	@y.setter
 	def y(self, val):
 		(x, _, z), q = self.get_cartesian()
 		pose = [[x, val, z], q]
-		self.set_cartesian(pose)
+		self.movej(pose)
 
 	@z.setter
 	def z(self, val):
 		(x, y, _), q = self.get_cartesian()
 		pose = [[x, y, val], q]
-		self.set_cartesian(pose)
+		self.movej(pose)
 
 	@rx.setter
 	def rx(self, val):
 		c, q = self.get_cartesian()
 		(_, ry, rz) = quat_to_euler(q)
 		pose = [c, euler_to_quat([val, ry, rz])]
-		self.set_cartesian(pose)
+		self.movej(pose)
 
 	@ry.setter
 	def ry(self, val):
 		c, q = self.get_cartesian()
 		(rx, _, rz) = quat_to_euler(q)
 		pose = [c, euler_to_quat([rx, val, rz])]
-		self.set_cartesian(pose)
+		self.movej(pose)
 
 	@rz.setter
 	def rz(self, val):
 		c, q = self.get_cartesian()
 		(rx, ry, _) = quat_to_euler(q)
 		pose = [c, euler_to_quat([rx, ry, val])]
-		self.set_cartesian(pose)
+		self.movej(pose)

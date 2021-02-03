@@ -204,9 +204,23 @@ PROC main()
                     moveCompleted := TRUE;
                 ELSE
                     ok := SERVER_BAD_MSG;
-                ENDIF	
-				
+                ENDIF
+
             CASE 2: !Joint Move
+                IF nParams = 7 THEN
+                    cartesianTarget :=[[params{1},params{2},params{3}],
+                                       [params{4},params{5},params{6},params{7}],
+                                       [0,0,0,0],
+                                       externalAxis];
+                    ok := SERVER_OK;
+                    moveCompleted := FALSE;
+                    MoveJ cartesianTarget, currentSpeed, currentZone, currentTool \WObj:=currentWobj ;
+                    moveCompleted := TRUE;
+                ELSE
+                    ok := SERVER_BAD_MSG;
+                ENDIF
+
+            CASE 3: !Absolute Joint Move
                 IF nParams = 6 THEN
                     jointsTarget:=[[params{1},params{2},params{3},params{4},params{5},params{6}], externalAxis];
                     ok := SERVER_OK;
@@ -217,7 +231,7 @@ PROC main()
                     ok :=SERVER_BAD_MSG;
                 ENDIF
 
-            CASE 3: !Get Cartesian Coordinates (with current tool and workobject)
+            CASE 4: !Get Cartesian Coordinates (with current tool and workobject)
                 IF nParams = 0 THEN
                     cartesianPose := CRobT(\Tool:=currentTool \WObj:=currentWObj);		
                     addString := NumToStr(cartesianPose.trans.x,2) + " ";
@@ -232,7 +246,7 @@ PROC main()
                     ok :=SERVER_BAD_MSG;
                 ENDIF
 
-            CASE 4: !Get Joint Coordinates
+            CASE 5: !Get Joint Coordinates
                 IF nParams = 0 THEN
                     jointsPose := CJointT();
                     addString := NumToStr(jointsPose.robax.rax_1,2) + " ";
@@ -245,7 +259,7 @@ PROC main()
                 ELSE
                     ok:=SERVER_BAD_MSG;
                 ENDIF
-			CASE 5: !Get external axis positions
+			CASE 6: !Get external axis positions
                 IF nParams = 0 THEN
                     jointsPose := CJointT();
                     addString := StrPart(NumToStr(jointsTarget.extax.eax_a, 2),1,8) + " ";
@@ -259,7 +273,7 @@ PROC main()
                     ok:=SERVER_BAD_MSG;
                 ENDIF	
 		
-            CASE 6: !Set Tool
+            CASE 7: !Set Tool
                 IF nParams = 7 THEN
 		   WHILE (frameMutex) DO
 		        WaitTime .01; !// If the frame is being used by logger, wait here
@@ -278,7 +292,7 @@ PROC main()
                     ok:=SERVER_BAD_MSG;
                 ENDIF
 
-            CASE 7: !Set Work Object
+            CASE 8: !Set Work Object
                 IF nParams = 7 THEN
                     currentWobj.oframe.trans.x:=params{1};
                     currentWobj.oframe.trans.y:=params{2};
@@ -292,7 +306,7 @@ PROC main()
                     ok:=SERVER_BAD_MSG;
                 ENDIF
 
-            CASE 8: !Set Speed of the Robot
+            CASE 9: !Set Speed of the Robot
                 IF nParams = 4 THEN
                     currentSpeed.v_tcp:=params{1};
                     currentSpeed.v_ori:=params{2};
@@ -307,7 +321,7 @@ PROC main()
                     ok:=SERVER_BAD_MSG;
                 ENDIF
 
-            CASE 9: !Set zone data
+            CASE 10: !Set zone data
                 IF nParams = 4 THEN
                     IF params{1}=1 THEN
                         currentZone.finep := TRUE;
