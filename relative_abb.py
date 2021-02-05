@@ -57,7 +57,7 @@ class RelativeRobot(Robot):
 			and (rz is None or drz == 0)
 		)
 
-	def move(self, x=None, y=None, z=None, rx=None, ry=None, rz=None, dx=0, dy=0, dz=0, drx=0, dry=0, drz=0, wait=True, linear=False):
+	def move(self, x=None, y=None, z=None, rx=None, ry=None, rz=None, dx=0, dy=0, dz=0, drx=0, dry=0, drz=0, wait=True, linear=True):
 		if not self.validate_inputs(x, y, z, rx, ry, rz, dx, dy, dz, drx, dry, drz):
 			return
 
