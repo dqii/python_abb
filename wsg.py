@@ -97,5 +97,5 @@ class WSG:
         self.tcp_sock.send(MESSAGE)
         return
 
-    def __del__(self):
+    def __exit__(self):
         self.bye()
