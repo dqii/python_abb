@@ -167,7 +167,7 @@ class Robot:
         msg = "08 " + self.format_pose(work_obj)
         self.send(msg)
 
-    def set_speed(self, speed=[50,50,50,50]):
+    def set_speed(self, speed=[40,20,20,20]):
         '''
         speed: [robot TCP linear speed (mm/s), TCP orientation speed (deg/s),
                 external axis linear, external axis orientation]
@@ -344,6 +344,7 @@ class Robot:
         return msg       
         
     def close(self):
+        self.singularity_off()
         self.send("99 #", False)
         self.sock.shutdown(socket.SHUT_RDWR)
         self.sock.close()
