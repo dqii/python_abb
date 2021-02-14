@@ -29,9 +29,9 @@ class RelativeRobot(Robot):
 		t = time.time()
 		while True:
 			current = self.get_cartesian()
-			if close_enough(current, goal, 0.03):
+			if close_enough(current, goal, 0.05):
 				break
-			elif time.time() - t > 5:
+			elif time.time() - t > 2:
 				if close_enough(current, goal, 0.1) and close_enough(current, last, 0.01):
 					break
 				print("Goal", goal)
