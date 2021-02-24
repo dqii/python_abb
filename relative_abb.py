@@ -47,18 +47,22 @@ class RelativeRobot(Robot):
 		if wait:
 			self.wait(pose)
 
-	def validate_inputs(self, x, y, z, rx, ry, rz, dx, dy, dz, drx, dry, drz):
-		return (
-			(x is None      or dx == 0)
-			and (y is None  or dy == 0)
-			and (z is None  or dz == 0)
-			and (rx is None or drx == 0)
-			and (ry is None or dry == 0)
-			and (rz is None or drz == 0)
-		)
+	def validate_cartesian_inputs(self, x, y, z, rx, ry, rz, dx, dy, dz, drx, dry, drz):
+		if not (
+			(x  is None or dx == 0) and
+			(y  is None or dy == 0) and
+			(z  is None or dz == 0) and
+			(rx is None or drx == 0) and
+			(ry is None or dry == 0) and
+			(rz is None or drz == 0)
+		):
+			print("Invalid cartesian inputs: Cannot provide both absolute and relative cartesian move (e.g., x and dx)")
+			return False
+
+		return True
 
 	def move(self, x=None, y=None, z=None, rx=None, ry=None, rz=None, dx=0, dy=0, dz=0, drx=0, dry=0, drz=0, wait=True, linear=True):
-		if not self.validate_inputs(x, y, z, rx, ry, rz, dx, dy, dz, drx, dry, drz):
+		if not self.validate_cartesian_inputs(x, y, z, rx, ry, rz, dx, dy, dz, drx, dry, drz):
 			return
 
 		old_pose = self.get_cartesian()
@@ -161,3 +165,105 @@ class RelativeRobot(Robot):
 		(rx, ry, _) = quat_to_euler(q)
 		pose = [c, euler_to_quat([rx, ry, val])]
 		self.movej(pose)
+
+	def validate_joint_inputs(self, j1, j2, j3, j4, j5, j6, dj1, dj2, dj3, dj4, dj5, dj6):
+		if not (
+			(j1 is None or dj1 == 0) and
+			(j2 is None or dj2 == 0) and
+			(j3 is None or dj3 == 0) and
+			(j4 is None or dj4 == 0) and
+			(j5 is None or dj5 == 0) and
+			(j6 is None or dj6 == 0)
+		):
+			print("Invalid joint inputs: Cannot provide both absolute and relative cartesian move (e.g., j1 and dj1)")
+			return False
+
+		return True
+
+	def validate_joint_goals(self, j1, j2, j3, j4, j5, j6):
+		if not -170 <= j1 and j1 <= 170:
+			print(f"Joint 1 has working range -170 to 170, you specified {j1}")
+			return False
+		if not -100 <= j2 and j2 <= 135:
+			print(f"Joint 2 has working range -100 to 135, you specified {j2}")
+			return False
+		if not -200 <= j3 and j3 <= 70:
+			print(f"Joint 3 has working range -200 to  70, you specified {j3}")
+			return False
+		if not -270 <= j4 and j4 <= 270:
+			print(f"Joint 4 has working range -270 to 270, you specified {j4}")
+			return False
+		if not -130 <= j5 and j5 <= 130:
+			print(f"Joint 5 has working range -130 to 130, you specified {j5}")
+			return False
+		if not -400 <= j6 and j6 <= 400:
+			print(f"Joint 6 has working range -400 to 400, you specified {j6}")
+			return False
+		return True
+
+	def move_joints(self, j1=None, j2=None, j3=None, j4=None, j5=None, j6=None, dj1=0, dj2=0, dj3=0, dj4=0, dj5=0, dj6=0):
+		if not self.validate_joint_inputs(j1, j2, j3, j4, j5, j6, dj1, dj2, dj3, dj4, dj5, dj6):
+			return
+
+		goal_j1, goal_j2, goal_j3, goal_j4, goal_j5, goal_j6 = self.get_joints()
+
+		goal_j1 = j1 if j1 is not None else goal_j1 + dj1
+		goal_j2 = j2 if j2 is not None else goal_j2 + dj2
+		goal_j3 = j3 if j3 is not None else goal_j3 + dj3
+		goal_j4 = j4 if j4 is not None else goal_j4 + dj4
+		goal_j5 = j5 if j5 is not None else goal_j5 + dj5
+		goal_j6 = j6 if j6 is not None else goal_j6 + dj6
+
+		goal = [goal_j1, goal_j2, goal_j3, goal_j4, goal_j5, goal_j6]
+		print(len(goal))
+
+		self.validate_joint_goals(*goal)
+		self.set_joints(goal)
+
+	@property
+	def j1(self):
+		return self.get_joints()[0]
+
+	@property
+	def j2(self):
+		return self.get_joints()[1]
+
+	@property
+	def j3(self):
+		return self.get_joints()[2]
+
+	@property
+	def j4(self):
+		return self.get_joints()[3]
+
+	@property
+	def j5(self):
+		return self.get_joints()[4]
+
+	@property
+	def j6(self):
+		return self.get_joints()[5]
+
+	@j1.setter
+	def j1(self, val):
+		self.move_joints(j1=val)
+
+	@j2.setter
+	def j2(self, val):
+		self.move_joints(j2=val)
+
+	@j3.setter
+	def j3(self, val):
+		self.move_joints(j3=val)
+
+	@j4.setter
+	def j4(self, val):
+		self.move_joints(j4=val)
+
+	@j5.setter
+	def j5(self, val):
+		self.move_joints(j5=val)
+
+	@j6.setter
+	def j6(self, val):
+		self.move_joints(j6=val)
