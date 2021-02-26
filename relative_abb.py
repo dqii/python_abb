@@ -215,7 +215,6 @@ class RelativeRobot(Robot):
 		goal_j6 = j6 if j6 is not None else goal_j6 + dj6
 
 		goal = [goal_j1, goal_j2, goal_j3, goal_j4, goal_j5, goal_j6]
-		print(len(goal))
 
 		self.validate_joint_goals(*goal)
 		self.set_joints(goal)
